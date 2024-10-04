@@ -1,0 +1,47 @@
+---
+- hosts: all
+  become: yes
+  
+  pre_tasks:
+  - name: install dnf-automatic for automated upgrades
+    dnf: name=dnf-automatic state=present
+
+  - name: start and enable dnf-automatic
+    service: name=dnf-automatic.timer state=started enabled=yes
+  
+  - name: configure dnf-automatic to download securiy updates
+    lineinfile:
+      path: /etc/dnf/automatic.conf
+      regexp: '^upgrade_type = default'
+      line: upgrade_type = security
+    notify: restart dnf-automatic if condiguration change
+
+  - name: apply security updates
+    lineinfile:
+      path: /etc/dnf/automatic.conf
+      regexp: '^apply_updates = no'
+      line: apply_updates = yes
+    notify: restart dnf-automatic if condiguration change
+  
+  - name: install yum-utils for advacend update features
+    dnf: name=yum-utils state=present 
+  
+  handlers:
+  - name: restart dnf-automatic if condiguration change
+    service: name=dnf-automatic.timer state=restarted
+
+  tasks:
+  - name: update all system packages
+    dnf: name="*" state=latest
+
+  #- name: update security related packages
+  #  dnf: security=true state=latest
+
+  #- name: verifiy if reboot is required
+  #  command: needs-restarting -r
+  #  register: reboot_required
+    
+  #- name: reboot system if required
+  #  reboot:
+  #    msg: "rebooting is necessary"
+  #  when: reboot_required.rc == 1
