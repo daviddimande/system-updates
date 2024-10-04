@@ -33,15 +33,3 @@
   tasks:
   - name: update all system packages
     dnf: name="*" state=latest
-
-  #- name: update security related packages
-  #  dnf: security=true state=latest
-
-  #- name: verifiy if reboot is required
-  #  command: needs-restarting -r
-  #  register: reboot_required
-    
-  #- name: reboot system if required
-  #  reboot:
-  #    msg: "rebooting is necessary"
-  #  when: reboot_required.rc == 1
